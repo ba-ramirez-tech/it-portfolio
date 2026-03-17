@@ -16,3 +16,6 @@ CRM-Automatisierung, API-Anbindungen und Prozessdigitalisierung.
 ## Ziel
 Ausbildung zum Fachinformatiker für Systemintegration oder Anwendungsentwicklung
 – mit solider Praxisbasis und echter Lernmotivation.
+
+- Selbststudium: IT-Handbuch für Fachinformatiker (Kersken, 2025)
+- Online-Weiterbildung: Platzi.com – Kurse in HTML; JavaScript, UX,  ClaudeCode, KI, Automatisierung und Digitalisierung
