@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bewerbung — Braulio Ramirez | Ideenkraftwerk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --text: #e0e0e8;
+    --text-dim: #6b6b80;
+    --accent: #00d4aa;
+    --accent-glow: rgba(0, 212, 170, 0.15);
+    --terminal-green: #00ff41;
+    --terminal-bg: #0d1117;
+    --terminal-dim: #3a5a3a;
+    --red: #ff4757;
+    --font-body: 'Sora', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === SCREEN SYSTEM === */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .screen.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+    z-index: 10;
+  }
+
+  /* === WELCOME SCREEN === */
+  .welcome-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 100px;
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    background: var(--accent-glow);
+  }
+
+  .welcome-title {
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    max-width: 600px;
+  }
+
+  .welcome-title span {
+    color: var(--accent);
+  }
+
+  .welcome-sub {
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    text-align: center;
+    max-width: 480px;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .btn-start {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.9rem 2.4rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 212, 170, 0.3);
+  }
+
+  /* === QUESTION SCREENS === */
+  .q-counter {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+    letter-spacing: 0.05em;
+  }
+
+  .q-counter .current { color: var(--accent); }
+
+  .q-text {
+    font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+    font-weight: 600;
+    text-align: center;
+    max-width: 580px;
+    line-height: 1.4;
+    margin-bottom: 2.5rem;
+  }
+
+  .q-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .q-option {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 1rem 1.4rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    text-align: left;
+  }
+
+  .q-option:hover {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    transform: translateX(4px);
+  }
+
+  .q-option.selected {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* === REACTION === */
+  .reaction {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .reaction.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .reaction-text {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: var(--accent);
+    font-weight: 400;
+    text-align: center;
+    max-width: 500px;
+    font-style: italic;
+  }
+
+  /* === ACCESS GRANTED SCREEN === */
+  #access-screen {
+    background: var(--bg);
+  }
+
+  .access-box {
+    text-align: center;
+  }
+
+  .access-icon {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    animation: pulse-ring 1.5s ease-in-out infinite;
+  }
+
+  .access-icon svg {
+    width: 36px;
+    height: 36px;
+    stroke: var(--accent);
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.3); }
+    50% { box-shadow: 0 0 0 15px rgba(0, 212, 170, 0); }
+  }
+
+  .access-title {
+    font-family: var(--font-mono);
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .access-sub {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  /* === TERMINAL CV === */
+  #terminal-screen {
+    padding: 0;
+    background: var(--terminal-bg);
+  }
+
+  .terminal-window {
+    width: 100%;
+    max-width: 780px;
+    height: 90vh;
+    max-height: 700px;
+    background: var(--terminal-bg);
+    border: 1px solid #21262d;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    background: #161b22;
+    border-bottom: 1px solid #21262d;
+  }
+
+  .terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .terminal-dot.r { background: #ff5f57; }
+  .terminal-dot.y { background: #ffbd2e; }
+  .terminal-dot.g { background: #28c840; }
+
+  .terminal-title {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: #484f58;
+  }
+
+  .terminal-body {
+    flex: 1;
+    padding: 1.2rem;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--terminal-green);
+  }
+
+  .terminal-body::-webkit-scrollbar { width: 6px; }
+  .terminal-body::-webkit-scrollbar-track { background: transparent; }
+  .terminal-body::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+
+  .t-prompt { color: #58a6ff; }
+  .t-cmd { color: var(--terminal-green); }
+  .t-comment { color: var(--terminal-dim); font-style: italic; }
+  .t-heading { color: #f0883e; font-weight: 700; }
+  .t-accent { color: #00d4aa; }
+  .t-value { color: #e0e0e8; }
+  .t-divider { color: #30363d; }
+  .t-link { color: #58a6ff; text-decoration: underline; }
+
+  .t-line {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .t-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .cursor-blink::after {
+    content: '▋';
+    animation: blink 0.8s step-end infinite;
+    color: var(--terminal-green);
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* === FOOTER LINK === */
+  .terminal-footer {
+    padding: 0.8rem 1.2rem;
+    border-top: 1px solid #21262d;
+    background: #161b22;
+    text-align: center;
+  }
+
+  .terminal-footer a {
+    color: #58a6ff;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .terminal-footer a:hover { color: var(--accent); }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 600px) {
+    .terminal-body { font-size: 0.72rem; padding: 0.8rem; }
+    .terminal-window { height: 95vh; max-height: none; border-radius: 0; }
+    .screen { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div class="screen active" id="welcome-screen">
+  <div class="welcome-badge">Bewerbung 2026</div>
+  <h1 class="welcome-title">Bevor Sie meinen Lebenslauf sehen — <span>ein kurzer Check.</span></h1>
+  <p class="welcome-sub">5 Fragen. 30 Sekunden. Ich möchte wissen, ob wir zueinander passen.</p>
+  <button class="btn-start" onclick="startQuiz()">Screening starten →</button>
+</div>
+
+<!-- QUESTIONS -->
+<div class="screen" id="q1">
+  <div class="q-counter"><span class="current">01</span> / 05</div>
+  <p class="q-text">Glauben Sie, dass Quereinsteiger frische Perspektiven ins Team bringen?</p>
+  <div class="q-options">
+    <button class="q-option" onclick="answer(1, 'Gute Antwort. Genau deshalb bin ich hier.')">Absolut — Vielfalt macht uns stärker</button>
+    <button class="q-option" onclick="answer(1, 'Mutig ehrlich. Aber lesen Sie trotzdem weiter.')">Eher nicht — wir setzen auf Fachkräfte</button>
+  </div>
+</div>
+
+<div class="screen" id="q2">
+  <div class="q-counter"><span class="current">02</span> / 05</div>
+  <p class="q-text">Wie geht Ihr Team mit dem ersten Fehler eines neuen Mitglieds um?</p>
+  <div class="q-options">
+    <button class="q-option" onclick="answer(2, 'So soll es sein. Fehler sind Lernchancen.')">Wir lernen gemeinsam daraus</button>
+    <button class="q-option" onclick="answer(2, 'Hmm. Dann brauchen Sie erst recht jemanden mit frischem Blick.')">Fehler? Gibt\'s bei uns nicht.</button>
+  </div>
+</div>
+
+<div class="screen" id="q3">
+  <div class="q-counter"><span class="current">03</span> / 05</div>
+  <p class="q-text">Arbeiten Sie wirklich agil — oder steht „Scrum" nur auf der Website?</p>
+  <div class="q-options">
+    <button class="q-option" onclick="answer(3, 'Dann passe ich gut zu Ihnen. Ich kenne agile Methoden aus der Praxis.')">Wir leben es täglich</button>
+    <button class="q-option" onclick="answer(3, 'Ehrlich. Das gefällt mir. Vielleicht kann ich dabei helfen.')">Naja... wir arbeiten noch daran</button>
+  </div>
+</div>
+
+<div class="screen" id="q4">
+  <div class="q-counter"><span class="current">04</span> / 05</div>
+  <p class="q-text">Wie viele Sprachen spricht Ihr idealer Kandidat?</p>
+  <div class="q-options">
+    <button class="q-option" onclick="answer(4, 'Okay. Ich bringe trotzdem 4 mit — Spanisch, Englisch, Französisch und Deutsch. 😉')">1–2 reichen völlig</button>
+    <button class="q-option" onclick="answer(4, 'Perfekt. Ich bringe 4 mit — Spanisch, Englisch, Französisch und Deutsch.')">Je mehr, desto besser</button>
+  </div>
+</div>
+
+<div class="screen" id="q5">
+  <div class="q-counter"><span class="current">05</span> / 05</div>
+  <p class="q-text">Ist Ausbildung für Sie eine Investition — oder eher eine Pflicht?</p>
+  <div class="q-options">
+    <button class="q-option" onclick="answer(5, 'Dann lohnt sich der nächste Schritt. Hier kommt mein Profil.')">Eine Investition in die Zukunft</button>
+    <button class="q-option" onclick="answer(5, 'Vielleicht ändere ich Ihre Meinung. Schauen Sie selbst.')">Eher eine gesetzliche Pflicht</button>
+  </div>
+</div>
+
+<!-- REACTION OVERLAY -->
+<div class="reaction" id="reaction">
+  <p class="reaction-text" id="reaction-text"></p>
+</div>
+
+<!-- ACCESS GRANTED -->
+<div class="screen" id="access-screen">
+  <div class="access-box">
+    <div class="access-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <div class="access-title">Screening abgeschlossen</div>
+    <p class="access-sub">Zugang gewährt. Laden des Lebenslaufs...</p>
+  </div>
+</div>
+
+<!-- TERMINAL CV -->
+<div class="screen" id="terminal-screen">
+  <div class="terminal-window">
+    <div class="terminal-bar">
+      <div class="terminal-dot r"></div>
+      <div class="terminal-dot y"></div>
+      <div class="terminal-dot g"></div>
+      <div class="terminal-title">braulio_ramirez_cv.sh — bash</div>
+    </div>
+    <div class="terminal-body" id="terminal-body"></div>
+    <div class="terminal-footer">
+      <a href="mailto:ba.ramirez.pro@gmail.com?subject=Bewerbung%20Ausbildung%20Fachinformatiker%20Anwendungsentwicklung">📧 ba.ramirez.pro@gmail.com</a>
+      &nbsp;·&nbsp;
+      <a href="https://linkedin.com/in/braulio-ramirez-tech" target="_blank">LinkedIn</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/ba-ramirez-tech" target="_blank">GitHub</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // === NAVIGATION ===
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    setTimeout(() => {
+      document.getElementById(id).classList.add('active');
+    }, 80);
+  }
+
+  function startQuiz() {
+    showScreen('q1');
+  }
+
+  function answer(qNum, reactionMsg) {
+    // Show reaction
+    const overlay = document.getElementById('reaction');
+    const text = document.getElementById('reaction-text');
+    text.textContent = reactionMsg;
+    overlay.classList.add('show');
+
+    setTimeout(() => {
+      overlay.classList.remove('show');
+      setTimeout(() => {
+        if (qNum < 5) {
+          showScreen('q' + (qNum + 1));
+        } else {
+          showAccessGranted();
+        }
+      }, 200);
+    }, 1800);
+  }
+
+  function showAccessGranted() {
+    showScreen('access-screen');
+    setTimeout(() => {
+      showScreen('terminal-screen');
+      setTimeout(typeCV, 600);
+    }, 2200);
+  }
+
+  // === TERMINAL CV CONTENT ===
+  const cvLines = [
+    { type: 'prompt', text: '$ cat bewerbung_ramirez.txt' },
+    { type: 'blank' },
+    { type: 'heading', text: '═══════════════════════════════════════════════════' },
+    { type: 'heading', text: '  BRAULIO RAMIREZ — Bewerbung Ausbildung 2026' },
+    { type: 'heading', text: '  Fachinformatiker für Anwendungsentwicklung' },
+    { type: 'heading', text: '═══════════════════════════════════════════════════' },
+    { type: 'blank' },
+    { type: 'value',   text: '  📍 Heinrichstrasse 38, 33602 Bielefeld' },
+    { type: 'value',   text: '  📧 ba.ramirez.pro@gmail.com' },
+    { type: 'value',   text: '  📞 0174 545 2323' },
+    { type: 'link',    text: '  🔗 linkedin.com/in/braulio-ramirez-tech' },
+    { type: 'link',    text: '  🔗 github.com/ba-ramirez-tech' },
+    { type: 'blank' },
+    { type: 'comment', text: '  # Warum Ideenkraftwerk?' },
+    { type: 'accent',  text: '  Ihre Plattformen — ausbildungsstellen.de, backinjob.de,' },
+    { type: 'accent',  text: '  praktikumsstellen.de — sind genau die Art von Produkt,' },
+    { type: 'accent',  text: '  die ich 10 Jahre lang selbst gebaut und betrieben habe.' },
+    { type: 'accent',  text: '  Ich kenne SEO, Content-Strategie und Web-Plattformen' },
+    { type: 'accent',  text: '  nicht aus der Theorie — sondern aus dem Tagesgeschäft.' },
+    { type: 'accent',  text: '  Jetzt möchte ich das Fundament richtig lernen: Code.' },
+    { type: 'blank' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'heading', text: '  IT-ERFAHRUNG AUS DER PRAXIS' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'blank' },
+    { type: 'value',   text: '  Web & CMS      WordPress & WIX: Admin, Tech-SEO,' },
+    { type: 'value',   text: '                 Theme-Anpassung, Plugin-Management' },
+    { type: 'value',   text: '  Code & Daten   HTML (Grundlagen), JSON, Datenbanken,' },
+    { type: 'value',   text: '                 Google Analytics & Search Console' },
+    { type: 'value',   text: '  Automatisierung CRM-Workflows (HubSpot), E-Mail-' },
+    { type: 'value',   text: '                 Automatisierung, KI-Prompt-Engineering' },
+    { type: 'value',   text: '  Tools          Notion, Google Suite, Excel, Slack' },
+    { type: 'value',   text: '  Projektmgmt.   Agile Methoden, Prozessdigitalisierung' },
+    { type: 'blank' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'heading', text: '  BERUFLICHE LAUFBAHN' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'blank' },
+    { type: 'accent',  text: '  2015–2025  Web-Admin & Product | Travel' },
+    { type: 'value',   text: '             colombiesurmesure.com · Medellín' },
+    { type: 'comment', text: '             # Web-Infrastruktur, CMS, SEO, CRM,' },
+    { type: 'comment', text: '             # API-Anbindungen, 800+ B2C-Nutzer' },
+    { type: 'blank' },
+    { type: 'accent',  text: '  2022–2023  Specialist | 3PL & Fulfillment' },
+    { type: 'value',   text: '             Logistik-Startup · Medellín' },
+    { type: 'comment', text: '             # Multi-Brand-Logistik, PM-Tools,' },
+    { type: 'comment', text: '             # Prozessdigitalisierung' },
+    { type: 'blank' },
+    { type: 'accent',  text: '  2020–2021  Medizinischer Dolmetscher' },
+    { type: 'value',   text: '             UK-Unternehmen · Remote' },
+    { type: 'comment', text: '             # 2.000+ Fachkontexte, strukturierte Doku' },
+    { type: 'blank' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'heading', text: '  BILDUNG' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'blank' },
+    { type: 'value',   text: '  Okt 2025   Deutschkurs B2 — Bibis Sprachschule' },
+    { type: 'comment', text: '             # + Selbststudium: IT-Handbuch für' },
+    { type: 'comment', text: '             # Fachinformatiker (Kersken, 2025)' },
+    { type: 'value',   text: '  2013–2019  Linguistik & Fremdsprachen' },
+    { type: 'comment', text: '             # Univ. de Antioquia (CO) · RUG (NL)' },
+    { type: 'comment', text: '             # 180+ ECTS · Erasmus+-Stipendiat der EU' },
+    { type: 'value',   text: '  2001–2006  Allgemeine Hochschulreife' },
+    { type: 'comment', text: '             # Colegio San Francisco de Asís' },
+    { type: 'blank' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'heading', text: '  SPRACHEN' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'blank' },
+    { type: 'accent',  text: '  Spanisch ████████████ Muttersprache' },
+    { type: 'accent',  text: '  Englisch ████████████ C2' },
+    { type: 'accent',  text: '  Französisch ██████████ C2' },
+    { type: 'accent',  text: '  Deutsch  ████████░░░░ Verhandlungssicher' },
+    { type: 'blank' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'heading', text: '  SELBSTSTUDIUM & WEITERBILDUNG' },
+    { type: 'divider', text: '  ───────────────────────────────────────────────────' },
+    { type: 'blank' },
+    { type: 'value',   text: '  Online-Zertifizierungen: Netzwerkgrundlagen,' },
+    { type: 'value',   text: '  IT-Sicherheit, Automatisierung, KI' },
+    { type: 'value',   text: '  IT-Handbuch f. Fachinformatiker (Kersken, 2025)' },
+    { type: 'blank' },
+    { type: 'heading', text: '═══════════════════════════════════════════════════' },
+    { type: 'blank' },
+    { type: 'prompt',  text: '$ echo "Ich freue mich auf ein Gespräch!"' },
+    { type: 'accent',  text: '  Ich freue mich auf ein Gespräch!' },
+    { type: 'blank' },
+    { type: 'prompt',  text: '$ _' },
+  ];
+
+  function typeCV() {
+    const body = document.getElementById('terminal-body');
+    body.innerHTML = '';
+
+    cvLines.forEach((line, i) => {
+      const el = document.createElement('div');
+      el.className = 't-line';
+
+      if (line.type === 'blank') {
+        el.innerHTML = '&nbsp;';
+      } else if (line.type === 'prompt') {
+        el.innerHTML = `<span class="t-prompt">${escapeHtml(line.text)}</span>`;
+      } else if (line.type === 'heading') {
+        el.innerHTML = `<span class="t-heading">${escapeHtml(line.text)}</span>`;
+      } else if (line.type === 'comment') {
+        el.innerHTML = `<span class="t-comment">${escapeHtml(line.text)}</span>`;
+      } else if (line.type === 'accent') {
+        el.innerHTML = `<span class="t-accent">${escapeHtml(line.text)}</span>`;
+      } else if (line.type === 'divider') {
+        el.innerHTML = `<span class="t-divider">${escapeHtml(line.text)}</span>`;
+      } else if (line.type === 'link') {
+        el.innerHTML = `<span class="t-link">${escapeHtml(line.text)}</span>`;
+      } else {
+        el.innerHTML = `<span class="t-value">${escapeHtml(line.text)}</span>`;
+      }
+
+      body.appendChild(el);
+
+      setTimeout(() => {
+        el.classList.add('visible');
+        // Auto-scroll
+        body.scrollTop = body.scrollHeight;
+      }, i * 45);
+    });
+
+    // Add blinking cursor to last line
+    setTimeout(() => {
+      const lastLine = body.querySelector('.t-line:last-child span');
+      if (lastLine) lastLine.classList.add('cursor-blink');
+    }, cvLines.length * 45 + 100);
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+
+</body>
+</html>
